@@ -80,14 +80,17 @@ export async function generateEmailBody(
 }
 
 const transporter = nodemailer.createTransport({
-  pool: true,
-  service: 'hotmail',
-  port: 2525,
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false,
   auth: {
     user: 'harshsahu9234@outlook.com',
     pass: process.env.EMAIL_PASSWORD,
   },
-  maxConnections: 1
+  tls: {
+    ciphers: "SSLv3",
+    rejectUnauthorized: false,
+  },
 })
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
@@ -98,9 +101,13 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
     subject: emailContent.subject,
   }
 
-  transporter.sendMail(mailOptions, (error: any, info: any) => {
-    if(error) return console.log(error);
-    
-    console.log('Email sent: ', info);
-  })
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent:", info.response);
+  } catch (error) {
+    console.error("❌ Email sending failed:", error);
+  }
 }
+
+// sendGrid pass - Z.NTsJ9rbzAyV5p
+// Recovery code - DSX7DZT1AERSKY4YKHPRDV5S
